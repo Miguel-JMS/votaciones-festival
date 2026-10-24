@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Votaciones Festival Vallenato 2027 – Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f1e4;--card:#fffdf7;--ink:#1b2a41;--mut:#5b6678;--acc:#e0a100;--acc2:#1f5c4a;--line:#d9d0b8;--err:#a63030;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a28;--card:#1b2638;--ink:#f3ecd8;--mut:#a7b0c0;--acc:#f0b429;--acc2:#5fc2a0;--line:#2f3d55;--err:#ff8a8a}}
+:root[data-theme="dark"]{--bg:#121a28;--card:#1b2638;--ink:#f3ecd8;--mut:#a7b0c0;--acc:#f0b429;--acc2:#5fc2a0;--line:#2f3d55;--err:#ff8a8a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Nunito Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.15;margin:0 0 .5rem}
+h1{font-size:1.8rem;font-weight:800}h2{font-size:1.35rem}h3{font-size:1.05rem}
+.wrap{max-width:720px;margin:0 auto;padding:0 1rem 3rem}
+header{background:var(--ink);color:#f6f1e4;border-bottom:6px solid var(--acc)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.8rem 1rem}
+.brand{font-family:Fraunces,serif;font-weight:800;font-size:1.05rem;cursor:pointer}
+nav{display:flex;gap:.4rem;flex-wrap:wrap}
+nav button{background:transparent;color:inherit;border:1px solid #f6f1e466;border-radius:6px;padding:.35rem .6rem;font:inherit;font-size:.85rem;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:.7rem 0}
+.row{display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.btn{background:var(--acc);color:#1b2a41;border:0;border-radius:8px;padding:.7rem 1.1rem;font:700 1rem "Nunito Sans",sans-serif;cursor:pointer;min-height:44px}
+.btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.full{width:100%}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+label{display:block;font-weight:700;margin:.7rem 0 .2rem}
+input,select{width:100%;padding:.65rem;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.chk{display:flex;gap:.5rem;align-items:flex-start;font-weight:400}.chk input{width:auto;margin-top:.3rem}
+.tag{font-size:.78rem;font-weight:700;padding:.15rem .55rem;border-radius:99px;background:var(--acc2);color:#fff}
+.tag.off{background:var(--mut)}
+.opt{display:flex;gap:.8rem;align-items:center;border:2px solid var(--line);border-radius:10px;padding:.7rem;margin:.5rem 0;cursor:pointer;background:var(--card)}
+.opt[aria-checked=true]{border-color:var(--acc2);box-shadow:inset 6px 0 0 var(--acc2)}
+.ph{width:52px;height:52px;border-radius:8px;background:var(--line);display:grid;place-items:center;font-family:Fraunces,serif;font-weight:800;color:var(--mut);flex:none}
+.mut{color:var(--mut);font-size:.9rem}
+.err{color:var(--err);font-weight:700;font-size:.9rem;min-height:1.2em}
+.bar{height:14px;background:var(--line);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc2)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{text-align:left;padding:.5rem .3rem;border-bottom:1px solid var(--line)}
+.crumb{font-size:.88rem;margin:1rem 0 .3rem;color:var(--mut)}
+.ok{text-align:center;padding:1.5rem 1rem}.ok .big{font-size:3rem}
+.note{font-size:.8rem;background:var(--acc);color:#1b2a41;padding:.4rem 1rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="note">Prototipo navegable · Eje 1 · Los datos son de ejemplo (Pendiente de validación)</div>
+<header><div class="wrap"><span class="brand" onclick="go('inicio')">Votaciones · Festival Vallenato 60</span><nav id="nav"></nav></div></header>
+<main class="wrap" id="app"></main>
+<script>
+var S={user:null,sel:null,vot:null,votado:{},cat:null};
+var CATS=[{id:1,n:'Concursos',d:'Votaciones sobre las finales del Festival'},{id:2,n:'Desfiles y cultura',d:'Piloneras, vestuario y tradición'},{id:3,n:'Artistas invitados',d:'Elige tu concierto favorito'}];
+var VOTS=[{id:1,c:1,t:'Canción inédita favorita del público',e:'Activa',lim:1,o:[['Sin tu mirada',48],['Camino al Cesar',31],['Voz de acordeón',21]]},
+{id:2,c:1,t:'Mejor piquería infantil',e:'Activa',lim:1,o:[['Versos del río',55],['Rima y tambor',45]]},
+{id:3,c:2,t:'Pilonera más elegante',e:'Activa',lim:1,o:[['Pilonera A',40],['Pilonera B',35],['Pilonera C',25]]},
+{id:4,c:3,t:'Concierto más esperado',e:'Cerrada',lim:1,o:[['Artista 1',60],['Artista 2',40]]}];
+function $(h){return h}
+function go(v){location.hash=v;render(v)}
+function nav(){var n=document.getElementById('nav'),h='';
+ if(!S.user)h='<button onclick="go(\'login\')">Iniciar sesión</button><button onclick="go(\'registro\')">Registrarse</button>';
+ else h='<span class="mut" style="color:#f6f1e4aa;align-self:center">'+S.user.n+'</span>'+(S.user.admin?'<button onclick="go(\'admin\')">Panel</button>':'')+'<button onclick="S.user=null;go(\'inicio\')">Cerrar sesión</button>';
+ n.innerHTML=h}
+function vt(id){return VOTS.filter(function(x){return x.id==id})[0]}
+function crumb(a){return '<div class="crumb">'+a+'</div>'}
+function render(v){v=v||location.hash.slice(1)||'inicio';nav();var h='';
+ if(v=='inicio'){h='<h1>Elige a tus favoritos del Festival</h1><p class="mut">Edición 2027 · Vota desde tu celular en pocos pasos.</p>';
+  CATS.forEach(function(c){h+='<div class="card row"><div><h3>'+c.n+'</h3><span class="mut">'+c.d+'</span></div><button class="btn sec" onclick="S.cat='+c.id+';go(\'votaciones\')">Ver votaciones</button></div>'})}
+ else if(v=='registro'){h='<h1>Crear cuenta</h1><div class="card"><label for="rn">Nombre</label><input id="rn" autocomplete="name"><label for="rc">Correo electrónico</label><input id="rc" type="email" autocomplete="email"><label for="rp">Contraseña (mínimo 8 caracteres)</label><input id="rp" type="password"><label class="chk"><input type="checkbox" id="rk"> Autorizo el tratamiento de mis datos personales (Ley 1581 de 2012).</label><p class="err" id="re"></p><button class="btn full" onclick="reg()">Crear cuenta</button><p class="mut">¿Ya tienes cuenta? <a href="#login" onclick="go(\'login\');return false">Inicia sesión</a></p></div>'}
+ else if(v=='login'){h='<h1>Iniciar sesión</h1><div class="card"><label for="lc">Correo electrónico</label><input id="lc" type="email"><label for="lp">Contraseña</label><input id="lp" type="password"><p class="err" id="le"></p><button class="btn full" onclick="login()">Entrar</button><p class="mut">Demo: escribe «admin» en el correo para entrar como administrador.</p></div>'}
+ else if(v=='votaciones'){var c=CATS.filter(function(x){return x.id==S.cat})[0]||CATS[0];h=crumb('Inicio › '+c.n)+'<h1>'+c.n+'</h1>';
+  var l=VOTS.filter(function(x){return x.c==c.id});if(!l.length)h+='<div class="card">Aún no hay votaciones en esta categoría.</div>';
+  l.forEach(function(x){h+='<div class="card row"><div><h3>'+x.t+'</h3><span class="tag '+(x.e=='Activa'?'':'off')+'">'+x.e+'</span></div><button class="btn" onclick="S.vot='+x.id+';S.sel=null;go(\'detalle\')">'+(x.e=='Activa'?'Votar':'Ver detalle')+'</button></div>'})}
+ else if(v=='detalle'){var x=vt(S.vot);if(!x)return go('inicio');h=crumb('Inicio › Votaciones › '+x.t)+'<h1>'+x.t+'</h1><p class="mut">Estado: '+x.e+' · Votos permitidos: '+x.lim+'</p><div role="radiogroup">';
+  x.o.forEach(function(o,i){h+='<div class="opt" role="radio" tabindex="0" aria-checked="'+(S.sel===i)+'" onclick="S.sel='+i+';render(\'detalle\')"><div class="ph">'+o[0][0]+'</div><div><strong>'+o[0]+'</strong><div class="mut">Descripción breve de la opción</div></div></div>'});
+  h+='</div>';
+  if(x.e!='Activa')h+='<div class="card">Esta votación está cerrada. No se pueden registrar más votos.</div>';
+  else h+='<button class="btn full" onclick="vote()">Continuar</button><p class="err" id="de"></p>'}
+ else if(v=='confirmar'){var x=vt(S.vot);h='<h1>Confirma tu voto</h1><div class="card"><p class="mut">'+x.t+'</p><h2>'+x.o[S.sel][0]+'</h2><p class="mut">Una vez confirmado, no podrás cambiarlo.</p></div><button class="btn full" onclick="confirmar()">Confirmar voto</button><br><br><button class="btn sec full" onclick="go(\'detalle\')">Cancelar y volver</button>'}
+ else if(v=='listo'){h='<div class="card ok"><div class="big">✔</div><h1>Voto registrado</h1><p>Gracias por participar. Los resultados se publicarán cuando cierre la votación.</p><button class="btn" onclick="go(\'inicio\')">Volver al inicio</button></div>'}
+ else if(v=='admin'){if(!S.user||!S.user.admin)return go('login');h='<h1>Panel de administración</h1><p class="mut">Edición 2027</p>';
+  h+='<div class="card row"><div><h3>Categorías y votaciones</h3><span class="mut">'+CATS.length+' categorías · '+VOTS.length+' votaciones</span></div><button class="btn" onclick="go(\'adm-votaciones\')">Gestionar</button></div>';
+  h+='<div class="card row"><div><h3>Resultados</h3><span class="mut">Conteo por opción</span></div><button class="btn" onclick="S.vot=1;go(\'adm-resultados\')">Ver</button></div>'}
+ else if(v=='adm-votaciones'){h=crumb('Panel › Votaciones')+'<h1>Gestionar votaciones</h1><div class="card"><table><tr><th>Votación</th><th>Estado</th><th></th></tr>';
+  VOTS.forEach(function(x){h+='<tr><td>'+x.t+'</td><td><span class="tag '+(x.e=='Activa'?'':'off')+'">'+x.e+'</span></td><td><button class="btn sec" onclick="S.vot='+x.id+';go(\'adm-opciones\')">Opciones</button></td></tr>'});
+  h+='</table></div><div class="card"><h3>Nueva votación</h3><label for="nt">Título</label><input id="nt"><label for="na">Categoría</label><select id="na">'+CATS.map(function(c){return '<option>'+c.n+'</option>'}).join('')+'</select><label for="nf">Apertura</label><input id="nf" type="datetime-local"><label for="ng">Cierre</label><input id="ng" type="datetime-local"><label for="nl">Votos máximos por usuario</label><input id="nl" type="number" value="1" min="1"><p class="err" id="ae"></p><button class="btn full" onclick="nueva()">Guardar votación</button></div>'}
+ else if(v=='adm-opciones'){var x=vt(S.vot);h=crumb('Panel › Votaciones › Opciones')+'<h1>'+x.t+'</h1><div class="card">';
+  x.o.forEach(function(o){h+='<div class="row" style="padding:.4rem 0"><span>'+o[0]+'</span><span class="tag">Activa</span></div>'});
+  h+='</div><div class="card"><h3>Agregar opción</h3><label for="on">Nombre</label><input id="on"><label for="od">Descripción</label><input id="od"><p class="mut">Una votación necesita al menos 2 opciones para activarse.</p><button class="btn full" onclick="addOp()">Agregar opción</button></div><button class="btn sec full" onclick="S.vot='+x.id+';go(\'adm-resultados\')">Ver resultados</button>'}
+ else if(v=='adm-resultados'){var x=vt(S.vot),t=0;x.o.forEach(function(o){t+=o[1]});h=crumb('Panel › Resultados')+'<h1>'+x.t+'</h1><div class="card">';
+  x.o.forEach(function(o){h+='<div style="margin:.7rem 0"><div class="row"><strong>'+o[0]+'</strong><span>'+o[1]+' votos · '+Math.round(o[1]*100/t)+'%</span></div><div class="bar"><i style="width:'+(o[1]*100/t)+'%"></i></div></div>'});
+  h+='<p class="mut">Total: '+t+' votos</p></div><div class="row"><button class="btn sec" onclick="if(confirm(\'¿Cerrar la votación ahora? Se registrará en el historial.\')){x=vt(S.vot);x.e=\'Cerrada\';render(\'adm-resultados\')}">Cerrar votación</button><button class="btn sec">Exportar CSV</button></div>'}
+ document.getElementById('app').innerHTML=h;window.scrollTo(0,0)}
+function reg(){var e=document.getElementById('re');if(!rn.value||!/\S+@\S+\.\S+/.test(rc.value)||rp.value.length<8)return e.textContent='Revisa nombre, correo y contraseña (mínimo 8 caracteres).';if(!rk.checked)return e.textContent='Debes aceptar el tratamiento de datos para registrarte.';S.user={n:rn.value};go(S.vot?'detalle':'inicio')}
+function login(){var e=document.getElementById('le');if(!lc.value||!lp.value)return e.textContent='Escribe tu correo y contraseña.';S.user={n:lc.value.split('@')[0],admin:lc.value.indexOf('admin')==0};go(S.user.admin?'admin':(S.vot?'detalle':'inicio'))}
+function vote(){var e=document.getElementById('de');if(S.sel===null)return e.textContent='Elige una opción para continuar.';if(!S.user){return go('login')}if(S.votado[S.vot]){return e.textContent='Ya alcanzaste el límite de votos en esta votación.'}go('confirmar')}
+function confirmar(){S.votado[S.vot]=1;vt(S.vot).o[S.sel][1]++;go('listo')}
+function nueva(){var e=document.getElementById('ae');if(!nt.value)return e.textContent='Escribe un título.';if(nf.value&&ng.value&&ng.value<=nf.value)return e.textContent='La fecha de cierre debe ser posterior a la de apertura.';VOTS.push({id:VOTS.length+1,c:1,t:nt.value,e:'Cerrada',lim:+nl.value,o:[]});render('adm-votaciones')}
+function addOp(){if(!on.value)return;vt(S.vot).o.push([on.value,0]);render('adm-opciones')}
+window.addEventListener('hashchange',function(){render()});
+render();
+</script>
+</body>
+</html>
